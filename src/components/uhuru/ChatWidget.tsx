@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -15,19 +14,15 @@ interface Message {
   content: string;
 }
 
-export default function ChatWidget() {
-  const [isOpen, setIsOpen] = useState(false);
+const ChatInterface = React.memo(({ toggleOpen }: { toggleOpen: () => void }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  const toggleOpen = () => {
-    setIsOpen(!isOpen);
-    if (!isOpen) {
-        setMessages([{ role: 'assistant', content: "Hello! I'm UhurU's assistant. How can I help you with our services today?" }]);
-    }
-  };
+  useEffect(() => {
+    setMessages([{ role: 'assistant', content: "Hello! I'm UhurU's assistant. How can I help you with our services today?" }]);
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
@@ -60,79 +55,90 @@ export default function ChatWidget() {
 
   useEffect(() => {
     if (scrollAreaRef.current) {
-        const scrollContainer = scrollAreaRef.current.querySelector('div:first-child');
-        if (scrollContainer) {
-            scrollContainer.scrollTop = scrollContainer.scrollHeight;
-        }
+      const scrollContainer = scrollAreaRef.current.querySelector('div:first-child');
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
     }
   }, [messages]);
 
   return (
+    <motion.div
+      initial={{ opacity: 0, y: 50, scale: 0.9 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 50, scale: 0.9 }}
+      transition={{ duration: 0.3, ease: 'easeInOut' }}
+      className="fixed bottom-24 right-6 z-50"
+    >
+      <Card className="w-[350px] h-[500px] flex flex-col shadow-2xl rounded-2xl bg-card">
+        <CardHeader className="flex flex-row items-center justify-between p-4 border-b">
+          <CardTitle className="text-lg font-headline flex items-center gap-2">
+            <Bot className="h-6 w-6 text-primary" />
+            <span>UhurU Assistant</span>
+          </CardTitle>
+          <Button variant="ghost" size="icon" onClick={toggleOpen}>
+            <X className="h-5 w-5" />
+          </Button>
+        </CardHeader>
+        <CardContent className="flex-1 p-0">
+          <ScrollArea className="h-full" ref={scrollAreaRef}>
+            <div className="p-4 space-y-4">
+              {messages.map((message, index) => (
+                <div key={index} className={`flex items-start gap-3 ${message.role === 'user' ? 'justify-end' : ''}`}>
+                  {message.role === 'assistant' && <Bot className="h-6 w-6 text-primary flex-shrink-0" />}
+                  <div className={`rounded-2xl px-4 py-2 max-w-[80%] text-sm ${
+                      message.role === 'user'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground'
+                    }`}
+                  >
+                    {message.content}
+                  </div>
+                  {message.role === 'user' && <User className="h-6 w-6 flex-shrink-0" />}
+                </div>
+              ))}
+              {isLoading && (
+                <div className="flex items-start gap-3">
+                  <Bot className="h-6 w-6 text-primary flex-shrink-0" />
+                  <div className="rounded-2xl px-4 py-2 max-w-[80%] bg-muted text-muted-foreground flex items-center">
+                    <Loader className="h-5 w-5 animate-spin" />
+                  </div>
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+        </CardContent>
+        <CardFooter className="p-4 border-t">
+          <form onSubmit={handleSendMessage} className="flex w-full items-center gap-2">
+            <Input
+              placeholder="Ask about our services..."
+              value={input}
+              onChange={handleInputChange}
+              disabled={isLoading}
+              className="flex-1"
+            />
+            <Button type="submit" size="icon" disabled={isLoading}>
+              <Send className="h-5 w-5" />
+            </Button>
+          </form>
+        </CardFooter>
+      </Card>
+    </motion.div>
+  );
+});
+ChatInterface.displayName = 'ChatInterface';
+
+export default function ChatWidget() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleOpen = () => {
+    setIsOpen(!isOpen);
+  };
+
+  return (
     <>
       <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 50, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 50, scale: 0.9 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="fixed bottom-24 right-6 z-50"
-          >
-            <Card className="w-[350px] h-[500px] flex flex-col shadow-2xl rounded-2xl bg-card">
-              <CardHeader className="flex flex-row items-center justify-between p-4 border-b">
-                <CardTitle className="text-lg font-headline flex items-center gap-2">
-                  <Bot className="h-6 w-6 text-primary" />
-                  <span>UhurU Assistant</span>
-                </CardTitle>
-                <Button variant="ghost" size="icon" onClick={toggleOpen}>
-                  <X className="h-5 w-5" />
-                </Button>
-              </CardHeader>
-              <CardContent className="flex-1 p-0">
-                <ScrollArea className="h-full" ref={scrollAreaRef}>
-                  <div className="p-4 space-y-4">
-                  {messages.map((message, index) => (
-                    <div key={index} className={`flex items-start gap-3 ${message.role === 'user' ? 'justify-end' : ''}`}>
-                      {message.role === 'assistant' && <Bot className="h-6 w-6 text-primary flex-shrink-0" />}
-                      <div className={`rounded-2xl px-4 py-2 max-w-[80%] text-sm ${
-                          message.role === 'user'
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-muted text-muted-foreground'
-                        }`}
-                      >
-                        {message.content}
-                      </div>
-                      {message.role === 'user' && <User className="h-6 w-6 flex-shrink-0" />}
-                    </div>
-                  ))}
-                  {isLoading && (
-                    <div className="flex items-start gap-3">
-                        <Bot className="h-6 w-6 text-primary flex-shrink-0" />
-                        <div className="rounded-2xl px-4 py-2 max-w-[80%] bg-muted text-muted-foreground flex items-center">
-                            <Loader className="h-5 w-5 animate-spin" />
-                        </div>
-                    </div>
-                  )}
-                  </div>
-                </ScrollArea>
-              </CardContent>
-              <CardFooter className="p-4 border-t">
-                <form onSubmit={handleSendMessage} className="flex w-full items-center gap-2">
-                  <Input
-                    placeholder="Ask about our services..."
-                    value={input}
-                    onChange={handleInputChange}
-                    disabled={isLoading}
-                    className="flex-1"
-                  />
-                  <Button type="submit" size="icon" disabled={isLoading}>
-                    <Send className="h-5 w-5" />
-                  </Button>
-                </form>
-              </CardFooter>
-            </Card>
-          </motion.div>
-        )}
+        {isOpen && <ChatInterface toggleOpen={toggleOpen} />}
       </AnimatePresence>
 
       <motion.div

@@ -1,4 +1,6 @@
-export default function Logo({ isHero = false }: { isHero?: boolean }) {
+import React from 'react';
+
+const Logo = React.memo(({ isHero = false }: { isHero?: boolean }) => {
   const textColor = isHero ? 'text-white' : 'text-foreground';
   const bgColor = isHero ? 'bg-white' : 'bg-foreground';
 
@@ -14,4 +16,7 @@ export default function Logo({ isHero = false }: { isHero?: boolean }) {
           </div>
       </div>
   );
-};
+});
+
+Logo.displayName = "Logo";
+export default Logo;

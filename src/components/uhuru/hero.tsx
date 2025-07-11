@@ -3,9 +3,9 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import Logo from './logo';
+import React from 'react';
 
-export default function Hero() {
-
+const Hero = React.memo(() => {
   return (
     <section className="w-full pt-12 md:pt-24 lg:pt-32 pb-6 md:pb-12 lg:pb-16 bg-background dark:bg-background">
       <div className="container mx-auto grid max-w-7xl gap-8 px-4 md:px-10 lg:grid-cols-2 lg:gap-16">
@@ -46,4 +46,6 @@ export default function Hero() {
       </div>
     </section>
   );
-}
+});
+Hero.displayName = 'Hero';
+export default Hero;

@@ -1,4 +1,4 @@
-
+import React from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
@@ -85,7 +85,7 @@ const SocialLinks = ({ isMobile = false }: { isMobile?: boolean }) => (
   </TooltipProvider>
 );
 
-export default function Header() {
+const Header = React.memo(() => {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-zinc-100 dark:bg-background border-border/40 dark:bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto flex h-24 max-w-7xl items-center justify-between px-4 md:px-10">
@@ -120,4 +120,6 @@ export default function Header() {
       </div>
     </header>
   );
-}
+});
+Header.displayName = 'Header';
+export default Header;

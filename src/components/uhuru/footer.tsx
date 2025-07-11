@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Linkedin, Instagram, Send } from "lucide-react";
 import Logo from "./logo";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import React from "react";
 
 const WhatsAppIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-foreground hover:text-primary" fill="none">
@@ -17,7 +18,7 @@ const XIcon = () => (
 )
 
 
-export default function Footer() {
+const Footer = React.memo(() => {
   return (
     <footer className="w-full bg-zinc-100 dark:bg-background border-t">
       <TooltipProvider>
@@ -68,4 +69,7 @@ export default function Footer() {
       </TooltipProvider>
     </footer>
   );
-}
+});
+
+Footer.displayName = "Footer";
+export default Footer;
