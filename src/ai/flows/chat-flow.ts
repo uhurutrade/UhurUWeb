@@ -1,26 +1,41 @@
-
 'use server';
 /**
- * @fileOverview A simple chat flow that uses a generative AI model to respond to user messages.
+ * @fileOverview A simple chat flow that uses the official OpenAI library to respond to user messages.
  *
  * - chat - A function that takes a user message and returns a response from the AI.
- * - ChatInput - The input type for the chat function.
- * - ChatOutput - The return type for the chat function.
  */
+import OpenAI from 'openai';
 
-import {z} from 'genkit/zod';
-import {ai} from '../instance';
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
-export const ChatInput = z.string();
-export type ChatInput = z.infer<typeof ChatInput>;
+// The user's input will be a simple string.
+export type ChatInput = string;
 
-export const ChatOutput = z.string();
-export type ChatOutput = z.infer<typeof ChatOutput>;
+// The assistant's output will also be a simple string.
+export type ChatOutput = string;
 
 export async function chat(message: ChatInput): Promise<ChatOutput> {
-  const {output} = await ai.generate({
-    model: 'openai/gpt-4o',
-    prompt: message,
-  });
-  return output;
+  if (!process.env.OPENAI_API_KEY) {
+    return "The OPENAI_API_KEY environment variable is not set. Please add it to your .env file.";
+  }
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        {
+          role: 'system',
+          content: "You are UhurU's assistant. Be helpful and friendly. Keep your answers concise.",
+        },
+        { role: 'user', content: message },
+      ],
+    });
+
+    return completion.choices[0]?.message?.content ?? "Sorry, I couldn't get a response.";
+  } catch (error) {
+    console.error('Error calling OpenAI API:', error);
+    return "Sorry, there was an error communicating with the AI. Please try again later.";
+  }
 }
