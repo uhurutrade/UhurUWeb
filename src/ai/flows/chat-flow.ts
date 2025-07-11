@@ -6,10 +6,6 @@
  */
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 // The user's input will be a simple string.
 export type ChatInput = string;
 
@@ -20,6 +16,10 @@ export async function chat(message: ChatInput): Promise<ChatOutput> {
   if (!process.env.OPENAI_API_KEY) {
     return "The OPENAI_API_KEY environment variable is not set. Please add it to your .env file.";
   }
+
+  const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
 
   try {
     const completion = await openai.chat.completions.create({
